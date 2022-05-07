@@ -18,6 +18,9 @@
 - OCR 基于 [PaddleOCR](https://gitee.com/paddlepaddle/PaddleOCR/) 实现
 - icons 来源于 [material-design-icons](https://github.com/google/material-design-icons)
 
+#### 安装步骤
+PaddleOCR的安装可参考：
+https://blog.csdn.net/Bit_Coders/article/details/121561632
 
 #### 使用说明
 运行以下命令，即可启动软件。
