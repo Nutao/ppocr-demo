@@ -1,13 +1,9 @@
-import argparse
-import codecs
-import logging
-import os
-import os.path as osp
 import sys
+
+from PyQt5 import QtCore, QtWidgets
+
 from guiocr import __appname__
 from guiocr.app import MainWindow
-from guiocr.utils import newIcon
-from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 def main():
