@@ -16,7 +16,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1131, 689)
         MainWindow.setStyleSheet("QWidget{\n"
-"    font: 10pt \"Microsoft YaHei UI\";\n"
+"    font: 10pt \"STSong\";\n"
 "}\n"
 "")
         MainWindow.setDocumentMode(False)
@@ -71,7 +71,7 @@ class Ui_MainWindow(object):
         self.btnStartProcess = QtWidgets.QPushButton(self.groupBox)
         self.btnStartProcess.setMinimumSize(QtCore.QSize(150, 35))
         font = QtGui.QFont()
-        font.setFamily("Microsoft YaHei UI")
+        font.setFamily("STSong")
         font.setPointSize(-1)
         font.setBold(False)
         font.setItalic(False)
@@ -163,7 +163,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(self.centralwidget)
         font = QtGui.QFont()
-        font.setFamily("Microsoft YaHei UI")
+        font.setFamily("STSong")
         font.setPointSize(10)
         font.setBold(False)
         font.setItalic(False)

@@ -1,26 +1,26 @@
-from PyQt5 import QtGui
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QMainWindow,QListWidget,QListWidgetItem,QAbstractItemView,QWidget,QApplication,QButtonGroup,QPushButton,QTextEdit,QRadioButton,QCheckBox,QLabel,QSpacerItem,QMessageBox,QGroupBox,QVBoxLayout,QHBoxLayout
-from PyQt5.QtCore import QObject,QThread,QSettings,pyqtSignal,pyqtSlot,Qt
-from .logger import logger
-from .shape import Shape
-import PIL.Image
-import math
-import os
+import functools
 import io
 import json
-import functools
+import math
+import os
+
+import PIL.Image
 import imgviz
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import QThread, QSettings, Qt
+from PyQt5.QtWidgets import QMainWindow, QListWidgetItem, QAbstractItemView, QApplication, \
+    QButtonGroup
+
 from guiocr import __appname__
-from guiocr import PY2
-from guiocr import QT5
 from guiocr import utils
 from guiocr.config import get_config
-from guiocr.widgets.main_window_ui import Ui_MainWindow
-from guiocr.widgets import *
 from guiocr.utils import *
-
+from guiocr.widgets import *
+from guiocr.widgets.main_window_ui import Ui_MainWindow
+from .logger import logger
+from .shape import Shape
 
 LABEL_COLORMAP = imgviz.label_colormap(value=200)
 here = os.path.dirname(os.path.abspath(__file__))
@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
 
         # 程序数据
         self.image = QtGui.QImage()
-        self.dataDict = {}#用于保持标注数据
+        self.dataDict = {}  # 用于保持标注数据
         self.imagePath = None
         self.recentFiles = []
         self.maxRecent = 7
@@ -102,7 +102,6 @@ class MainWindow(QMainWindow):
         self._ui.listWidgetResults.clear()
         # self.addResultItem(shape=None,txt="test3")
 
-
         # 控件布局
         """左侧：区域标签列表"""
         self.labelList = LabelListWidget()
@@ -143,7 +142,6 @@ class MainWindow(QMainWindow):
         self.canvas.scrollRequest.connect(self.scrollRequest)
         # self.setCentralWidget(self._ui.scrollAreaCanvas)
 
-
         # 设置默认形状颜色
         Shape.line_color = QtGui.QColor(*self._config["shape"]["line_color"])
         Shape.fill_color = QtGui.QColor(*self._config["shape"]["fill_color"])
@@ -169,7 +167,6 @@ class MainWindow(QMainWindow):
         # status bar
         self.statusBar().showMessage(str(self.tr("%s started.")) % __appname__)
         self.statusBar().show()
-
 
         # TODO 快捷键设置
 
@@ -541,8 +538,7 @@ class MainWindow(QMainWindow):
 
         # self.canvas.vertexSelected.connect(self.actions.removePoint.setEnabled)
 
-
-    def getIcon(self,iconName:str):
+    def getIcon(self, iconName: str):
         self.icons_dir = os.path.join(here, "./icons")
         path = os.path.join(":/", self.icons_dir, f"{iconName}.png")
         return QtGui.QIcon(path)
@@ -568,7 +564,7 @@ class MainWindow(QMainWindow):
             self.recentFiles.pop()
         self.recentFiles.insert(0, filename)
 
-    def addResultItem(self,shape=None,txt=""):
+    def addResultItem(self, shape=None, txt=""):
         """
         为labellist、listWidgetResults添加一条记录
         Args:
@@ -579,7 +575,7 @@ class MainWindow(QMainWindow):
 
         """
 
-        newItem = QListWidgetItem(txt,self._ui.listWidgetResults)
+        newItem = QListWidgetItem(txt, self._ui.listWidgetResults)
         newItem.setCheckState(Qt.Checked)
         newItem.setFlags(Qt.ItemIsEditable | Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
         self._ui.listWidgetResults.addItem(newItem)
@@ -612,7 +608,7 @@ class MainWindow(QMainWindow):
                 selected_shapes.append(item.shape())
                 # 选中listWidgetResults对应的item
                 index = self.labelList.model().indexFromItem(item)
-                self._ui.listWidgetResults.selectionModel().select(index,QtCore.QItemSelectionModel.Select)
+                self._ui.listWidgetResults.selectionModel().select(index, QtCore.QItemSelectionModel.Select)
                 self._ui.listWidgetResults.scrollTo(index)
             if selected_shapes:
                 self.canvas.selectShapes(selected_shapes)
@@ -637,7 +633,7 @@ class MainWindow(QMainWindow):
             idx = int(id.row())
             item = self._ui.listWidgetResults.item(idx)
             # item.setSelected(True)
-            self._ui.listWidgetResults.selectionModel().select(id,QtCore.QItemSelectionModel.Select)
+            self._ui.listWidgetResults.selectionModel().select(id, QtCore.QItemSelectionModel.Select)
             self._ui.listWidgetResults.scrollToItem(item)
 
         self._noSelectionSlot = False
@@ -650,7 +646,7 @@ class MainWindow(QMainWindow):
     def openPrevImg(self, _value=False):
         keep_prev = self._config["keep_prev"]
         if QtWidgets.QApplication.keyboardModifiers() == (
-            Qt.ControlModifier | Qt.ShiftModifier
+                Qt.ControlModifier | Qt.ShiftModifier
         ):
             self._config["keep_prev"] = True
 
@@ -674,7 +670,7 @@ class MainWindow(QMainWindow):
     def openNextImg(self, _value=False, load=True):
         keep_prev = self._config["keep_prev"]
         if QtWidgets.QApplication.keyboardModifiers() == (
-            Qt.ControlModifier | Qt.ShiftModifier
+                Qt.ControlModifier | Qt.ShiftModifier
         ):
             self._config["keep_prev"] = True
 
@@ -707,7 +703,7 @@ class MainWindow(QMainWindow):
             for fmt in QtGui.QImageReader.supportedImageFormats()
         ]
         filters = self.tr("图像文件 (%s)") % " ".join(
-            formats #+ ["*%s" % LabelFile.suffix]
+            formats  # + ["*%s" % LabelFile.suffix]
         )
         fileDialog = FileDialogPreview(self)
         fileDialog.setFileMode(FileDialogPreview.ExistingFile)
@@ -812,14 +808,14 @@ class MainWindow(QMainWindow):
 
     def startProcess(self):
         if not self.checkBtnGroup.checkedButton():
-            self.errorMessage("提示","请先选择任务配置")
+            self.errorMessage("提示", "请先选择任务配置")
             return
 
         # TODO:多线程处理+进度条
         selectBtnName = self.checkBtnGroup.checkedButton().objectName()
         if selectBtnName == "checkBox_ocr":
             # 文本检测+识别
-            self.processor.set_task(self.filename,cls=True,lan=self._ui.comboBoxLanguage.currentText())
+            self.processor.set_task(self.filename, cls=True, lan=self._ui.comboBoxLanguage.currentText())
             self._ui.btnStartProcess.setText("解析中...")
             # self.result = ocr(self.filename, cls=True, lan=self._ui.comboBoxLanguage.currentText())
             # self.add_ocr_results(self.result)
@@ -830,11 +826,11 @@ class MainWindow(QMainWindow):
             # self.add_ocr_results(self.result)
         elif selectBtnName == "checkBox_recog":
             # TODO:文本识别
-            self.errorMessage("提示","当前版本暂不支持")
+            self.errorMessage("提示", "当前版本暂不支持")
             # self.result = ocr(self.filename, cls=True, lan=self._ui.comboBoxLanguage.currentText())
             # self.add_ocr_results(self.result)
         elif selectBtnName == "checkBox_layoutparser":
-            self.errorMessage("提示","当前版本暂不支持")
+            self.errorMessage("提示", "当前版本暂不支持")
             # self.result = structure_analysis(self.filename,self.output_dir)
             # self.add_structure_results(self.result)
 
@@ -843,7 +839,7 @@ class MainWindow(QMainWindow):
         # 显示结果页
         self._ui.tabWidgetResult.setCurrentIndex(1)
 
-    def onReceiveResults(self,result):
+    def onReceiveResults(self, result):
         self.workThread.quit()
 
         # 检测+识别结果
@@ -852,15 +848,18 @@ class MainWindow(QMainWindow):
         self._ui.btnStartProcess.setText("解析完成")
         # TODO：其他分析结果
 
-    def add_ocr_results(self,result):
+    def add_ocr_results(self, result):
+        result = result[0]
+        self.result = result
         boxes = [line[0] for line in result]
         txts = [line[1][0] for line in result]
+        scores = [line[1][1] for line in result]
         shapes = []
         for i in range(len(boxes)):
-            x1 = boxes[i][0][0]#min(boxes[i][0][0],boxes[i][1][0])
-            y1 = boxes[i][0][1]#min(boxes[i][0][1],boxes[i][1][1])
-            x2 = boxes[i][2][0]#max(boxes[i][0][0], boxes[i][1][0])
-            y2 = boxes[i][2][1]#max(boxes[i][0][1], boxes[i][1][1])
+            x1 = boxes[i][0][0]  # min(boxes[i][0][0],boxes[i][1][0])
+            y1 = boxes[i][0][1]  # min(boxes[i][0][1],boxes[i][1][1])
+            x2 = boxes[i][2][0]  # max(boxes[i][0][0], boxes[i][1][0])
+            y2 = boxes[i][2][1]  # max(boxes[i][0][1], boxes[i][1][1])
             label = f"({x1},{y1}),({x2},{y2})"
             shape = Shape(
                 label=label,
@@ -873,10 +872,10 @@ class MainWindow(QMainWindow):
             # shape.close()
             txt = txts[i]
             self.addLabel(shape)
-            self.addResultItem(shape,txt)
+            self.addResultItem(shape, txt)
         self.loadShapes(shapes)
 
-    def add_structure_results(self,result):
+    def add_structure_results(self, result):
         # TODO: 版面分析
         for line in result:
             line.pop('img')
@@ -884,10 +883,10 @@ class MainWindow(QMainWindow):
 
     def copyToClipboard(self):
         contents = []
-        for id in self._ui.listWidgetResults.selectionModel().selectedRows():#selectedIndexes():#for item in self._ui.listWidgetResults.selectedItems():
+        for id in self._ui.listWidgetResults.selectionModel().selectedRows():  # selectedIndexes():#for item in self._ui.listWidgetResults.selectedItems():
             # 选取labelList中对应idx的item
             idx = int(id.row())
-            content = self._ui.listWidgetResults.item(idx).text()# item = self.labelList[idx]
+            content = self._ui.listWidgetResults.item(idx).text()  # item = self.labelList[idx]
             contents.append(content)
         txt = "\n".join(contents)
         self._ui.statusbar.setStatusTip(f"Copy {len(contents)} results to clipboard!")
@@ -896,10 +895,14 @@ class MainWindow(QMainWindow):
 
     def saveToFile(self):
         # TODO:保存至json、txt等
-        pass
+        with open(os.path.splitext(self.filename)[0] + ".txt", "w+",encoding="utf8", newline='') as f:
+            txts = [line[1][0] for line in self.result]
+            for line in txts:
+                f.write(line)
+                f.write("\n")
+            f.close()
 
-
-    def load_image_file(self,filename):
+    def load_image_file(self, filename):
         try:
             image_pil = PIL.Image.open(filename)
         except IOError:
@@ -1007,9 +1010,8 @@ class MainWindow(QMainWindow):
         current_filename = self.filename
         self.importDirImages(self.lastOpenDir, load=False)
 
-
     def deleteFile(self):
-        #TODO delete result file
+        # TODO delete result file
         mb = QtWidgets.QMessageBox
         msg = self.tr(
             "You are about to permanently delete this label file, "
@@ -1046,7 +1048,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             raise e
 
-
     def queueEvent(self, function):
         QtCore.QTimer.singleShot(0, function)
 
@@ -1063,7 +1064,7 @@ class MainWindow(QMainWindow):
         self.canvas.resetState()
 
     def _update_shape_color(self, shape):
-        r, g, b = self._get_rgb_by_label(shape.label,shape.group_id)
+        r, g, b = self._get_rgb_by_label(shape.label, shape.group_id)
         shape.line_color = QtGui.QColor(r, g, b)
         shape.vertex_fill_color = QtGui.QColor(r, g, b)
         shape.hvertex_fill_color = QtGui.QColor(255, 255, 255)
@@ -1071,7 +1072,7 @@ class MainWindow(QMainWindow):
         shape.select_line_color = QtGui.QColor(255, 255, 255)
         shape.select_fill_color = QtGui.QColor(r, g, b, 155)
 
-    def _get_rgb_by_label(self, label,group_id):
+    def _get_rgb_by_label(self, label, group_id):
         if self._config["shape_color"] == "auto":
             label_id = group_id
             # item = self.uniqLabelList.findItemsByLabel(label)[0]
@@ -1079,9 +1080,9 @@ class MainWindow(QMainWindow):
             label_id += self._config["shift_auto_shape_color"]
             return LABEL_COLORMAP[label_id % len(LABEL_COLORMAP)]
         elif (
-            self._config["shape_color"] == "manual"
-            and self._config["label_colors"]
-            and label in self._config["label_colors"]
+                self._config["shape_color"] == "manual"
+                and self._config["label_colors"]
+                and label in self._config["label_colors"]
         ):
             return self._config["label_colors"][label]
         elif self._config["default_shape_color"]:
@@ -1092,8 +1093,6 @@ class MainWindow(QMainWindow):
         for shape in shapes:
             item = self.labelList.findItemByShape(shape)
             self.labelList.removeItem(item)
-
-
 
     def addLabel(self, shape):
         if shape.group_id is None:
@@ -1127,7 +1126,7 @@ class MainWindow(QMainWindow):
         self.setScroll(orientation, value)
 
     def setScroll(self, orientation, value):
-        self.scrollBars[orientation].setValue(value)
+        self.scrollBars[orientation].setValue(int(value))
         self.scroll_values[orientation][self.filename] = value
 
     def setZoom(self, value):
@@ -1162,12 +1161,11 @@ class MainWindow(QMainWindow):
             self.setScroll(
                 Qt.Horizontal,
                 self.scrollBars[Qt.Horizontal].value() + x_shift,
-                )
+            )
             self.setScroll(
                 Qt.Vertical,
                 self.scrollBars[Qt.Vertical].value() + y_shift,
-                )
-
+            )
 
     def setFitWindow(self, value=True):
         if value:
@@ -1233,8 +1231,6 @@ class MainWindow(QMainWindow):
         self.canvas.scale = 0.01 * self.zoomWidget.value()
         self.canvas.adjustSize()
         self.canvas.update()
-
-
 
     def labelItemChanged(self, item):
         shape = item.shape()
@@ -1339,7 +1335,7 @@ class MainWindow(QMainWindow):
             "proceed anyway?"
         ).format(len(self.canvas.selectedShapes))
         if yes == QtWidgets.QMessageBox.warning(
-            self, self.tr("Attention"), msg, yes | no, yes
+                self, self.tr("Attention"), msg, yes | no, yes
         ):
             self.remLabels(self.canvas.deleteSelected())
             self.setDirty()
@@ -1349,7 +1345,7 @@ class MainWindow(QMainWindow):
 
     def onMoveShape(self):
         for shape in self.canvas.selectedShapes:
-            rgb = self._get_rgb_by_label(shape.label,shape.group_id)
+            rgb = self._get_rgb_by_label(shape.label, shape.group_id)
             # self.uniqLabelList.setItemLabel(item, shape.label, rgb)
             item = self.labelList.findItemByShape(shape)
             x1 = int(shape.points[0].x())
@@ -1527,4 +1523,3 @@ class MainWindow(QMainWindow):
     def tutorial(self):
         # TODO: add readme
         pass
-

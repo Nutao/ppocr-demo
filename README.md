@@ -1,7 +1,8 @@
 # OCR-GUI-demo
 
 #### 介绍
-图像文字识别OCR工具v1.1，含GUI界面。
+图像文字识别OCR工具v1.2，含GUI界面。
+fork from: https://gitee.com/signal926/ocr-gui-demo.git
 
 ![image-demo](guiocr/imgs/demo2.gif)
 
@@ -20,11 +21,13 @@
 
 #### 安装步骤
 PaddleOCR的安装可参考：
-https://blog.csdn.net/Bit_Coders/article/details/121561632
+
 
 #### 使用说明
 运行以下命令，即可启动软件。
+python: 3.11.4
 ```shell
+pip install -r requirements
 python main.py
 ```
 使用流程：

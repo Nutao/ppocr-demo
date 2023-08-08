@@ -527,7 +527,7 @@ class Canvas(QtWidgets.QWidget):
         y1 = top - point.y()
         x2 = right - point.x()
         y2 = bottom - point.y()
-        self.offsets = QtCore.QPoint(x1, y1), QtCore.QPoint(x2, y2)
+        self.offsets = QtCore.QPoint(int(x1), int(y1)), QtCore.QPoint(int(x2), int(y2))
 
     def boundedMoveVertex(self, pos):
         index, shape = self.hVertex, self.hShape
@@ -656,7 +656,7 @@ class Canvas(QtWidgets.QWidget):
         aw, ah = area.width(), area.height()
         x = (aw - w) / (2 * s) if aw > w else 0
         y = (ah - h) / (2 * s) if ah > h else 0
-        return QtCore.QPoint(x, y)
+        return QtCore.QPoint(int(x), int(y))
 
     def outOfPixmap(self, p):
         w, h = self.pixmap.width(), self.pixmap.height()

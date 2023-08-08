@@ -15,7 +15,7 @@ class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
         Form.resize(270, 142)
-        Form.setStyleSheet("font: 9pt \"Microsoft YaHei UI\";")
+        Form.setStyleSheet("font: 9pt \"STSong\";")
         self.verticalLayout = QtWidgets.QVBoxLayout(Form)
         self.verticalLayout.setObjectName("verticalLayout")
         self.formLayout = QtWidgets.QFormLayout()
